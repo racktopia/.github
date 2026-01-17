@@ -9,6 +9,7 @@ This document describes all the shared pre-commit hooks available in the racktop
 **Purpose:** Enforces consistent pre-commit configuration across all racktopia repositories.
 
 **What it checks:**
+
 - Verifies `.pre-commit-config.yaml` exists and uses racktopia/.github hooks
 - Ensures appropriate hooks are enabled based on file types present:
   - `markdownlint` for repositories with `.md` files
@@ -18,6 +19,7 @@ This document describes all the shared pre-commit hooks available in the racktop
 - Validates that hook revisions are up-to-date with the latest version
 
 **Special handling:**
+
 - For `racktopia/.github` repository itself: Must use `rev: main` to avoid circular dependency
 - For other repositories: Fails if hooks are outdated, provides commands to review changes
 
@@ -30,6 +32,7 @@ This document describes all the shared pre-commit hooks available in the racktop
 **Purpose:** Ensures consistent markdown formatting and style.
 
 **What it checks:**
+
 - Line length limits (120 characters by default)
 - Proper heading structure
 - Consistent list formatting
@@ -49,6 +52,7 @@ This document describes all the shared pre-commit hooks available in the racktop
 **Purpose:** Validates YAML syntax and formatting.
 
 **What it checks:**
+
 - Valid YAML syntax
 - Consistent indentation
 - Document start markers (`---`)
@@ -66,6 +70,7 @@ This document describes all the shared pre-commit hooks available in the racktop
 **Purpose:** Lints Ansible playbooks, roles, and tasks for best practices.
 
 **What it checks:**
+
 - Ansible best practices
 - Task naming conventions
 - Proper use of modules
@@ -83,6 +88,7 @@ This document describes all the shared pre-commit hooks available in the racktop
 **Purpose:** Validates Ansible playbook syntax.
 
 **What it checks:**
+
 - YAML syntax specific to Ansible
 - Valid Ansible module usage
 - Proper task structure
@@ -99,6 +105,7 @@ This document describes all the shared pre-commit hooks available in the racktop
 **Purpose:** Prevents accidental commit of secrets and sensitive information.
 
 **What it checks:**
+
 - API keys and tokens
 - Passwords and credentials
 - Private keys
@@ -131,18 +138,23 @@ repos:
 ### Repository-Specific Rules
 
 #### racktopia/.github Repository
+
 - Must use `rev: main` to avoid circular dependency
 - Should include `racktopia-standards`, `markdownlint`, `yamllint`, and `detect-secrets`
 
 #### Ansible Projects (like manifest-destiny)
-- Should include all hooks: `racktopia-standards`, `markdownlint`, `yamllint`, `ansible-lint`, `ansible-syntax-check`, `detect-secrets`
+
+- Should include all hooks: `racktopia-standards`, `markdownlint`, `yamllint`, `ansible-lint`,
+  `ansible-syntax-check`, `detect-secrets`
 
 #### Documentation-Only Repositories
+
 - Typically need: `racktopia-standards`, `markdownlint`, `yamllint`
 
 ## Dependency Management
 
 ### Just-In-Time Installation
+
 All hooks use a "just-in-time" dependency checking approach:
 
 1. Hook runs and checks if required tool is installed
@@ -171,11 +183,13 @@ pip install detect-secrets
 ### Updating Hook Revisions
 
 **Check for updates:**
+
 ```bash
 pre-commit autoupdate
 ```
 
 **Review changes before updating:**
+
 ```bash
 # See commit summaries
 git log --oneline OLD_REV..NEW_REV --no-merges
@@ -184,7 +198,8 @@ git log --oneline OLD_REV..NEW_REV --no-merges
 git diff OLD_REV..NEW_REV
 ```
 
-**The racktopia-standards hook will fail if hooks are outdated**, ensuring all repositories stay current with the latest shared tooling.
+**The racktopia-standards hook will fail if hooks are outdated**, ensuring all repositories stay current with
+the latest shared tooling.
 
 ### Adding New Hooks
 
@@ -206,21 +221,25 @@ git diff OLD_REV..NEW_REV
 ## Troubleshooting
 
 ### Hook Not Running
+
 - Check that file types match hook's `files` pattern
 - Verify hook is listed in your `.pre-commit-config.yaml`
 - Run `pre-commit run --all-files` to force execution
 
 ### Dependency Errors
+
 - Install missing tools using commands provided in hook error messages
 - Ensure tools are in your PATH
 - For npm tools, consider using `npx` if global installation fails
 
 ### Configuration Errors
+
 - Run `racktopia-standards` hook to validate configuration
 - Check YAML syntax in `.pre-commit-config.yaml`
 - Ensure repository URL and hook IDs are correct
 
 ### Network Issues
+
 - racktopia-standards hook requires internet access to check for updates
 - If offline, hook may show warnings but won't fail
 - Updates will be checked on next run with internet access

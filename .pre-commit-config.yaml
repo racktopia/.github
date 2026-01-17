@@ -1,9 +1,9 @@
 ---
-# Pinned to specific commit SHA to avoid pre-commit warnings about mutable references
+# Pinned to specific commit SHA to avoid mutable reference warnings
 repos:
   - repo: https://github.com/racktopia/.github
     # Pin to current HEAD to avoid warnings, allow up to 10 commits behind
-    rev: af583fbe14b184df425b968ac609cd55458b803a
+    rev: 176c6601908da7ab5c1006fc797c7f9f8360feda
     hooks:
       - id: racktopia-standards
       - id: markdownlint

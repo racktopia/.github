@@ -5,21 +5,26 @@ This repository contains shared pre-commit hooks, setup scripts, and development
 ## Documentation
 
 ### 📖 [Pre-commit Setup & Usage](docs/pre-commit.md)
+
 Complete guide to installing, configuring, and using pre-commit hooks with racktopia shared tooling.
 
 ### 📖 [Hooks Documentation](docs/hooks.md)
+
 Detailed reference for all available hooks, their purposes, dependencies, and troubleshooting.
 
 ## Quick Start
 
-**1. Install pre-commit (one-time per machine)**
+### 1. Install pre-commit (one-time per machine)
+
 ```bash
 pip install pre-commit
 # or: brew install pre-commit
 ```
+
 See [docs/pre-commit.md](docs/pre-commit.md) for other installation methods.
 
-**2. Install hooks (one-time per repo)**
+### 2. Install hooks (one-time per repo)
+
 ```bash
 pre-commit install
 ```

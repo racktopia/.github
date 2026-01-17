@@ -4,23 +4,27 @@ This document covers how to set up and use pre-commit hooks with racktopia share
 
 ## What is Pre-commit?
 
-Pre-commit is a framework for managing git hooks that automatically run checks before commits. It ensures code quality and consistency across all repositories by running linters, formatters, and custom validation tools.
+Pre-commit is a framework for managing git hooks that automatically run checks before commits. It ensures code
+quality and consistency across all repositories by running linters, formatters, and custom validation tools.
 
 ## Quick Setup
 
 ### 1. Install Pre-commit (One-time per Machine)
 
 **Using pip:**
+
 ```bash
 pip install pre-commit
 ```
 
 **Using Homebrew (macOS/Linux):**
+
 ```bash
 brew install pre-commit
 ```
 
 **Using conda:**
+
 ```bash
 conda install -c conda-forge pre-commit
 ```
@@ -35,9 +39,10 @@ cd your-repo
 pre-commit install
 ```
 
-### 3. Start Coding!
+### 3. Start Coding
 
-Once installed, hooks run automatically on `git commit`. Dependencies are checked just-in-time with helpful installation instructions if anything is missing.
+Once installed, hooks run automatically on `git commit`. Dependencies are checked just-in-time with helpful
+installation instructions if anything is missing.
 
 ## Configuration
 
@@ -65,6 +70,7 @@ repos:
 ### Repository-Specific Examples
 
 #### Documentation Repository
+
 ```yaml
 ---
 repos:
@@ -77,6 +83,7 @@ repos:
 ```
 
 #### Ansible Infrastructure Repository
+
 ```yaml
 ---
 repos:
@@ -92,6 +99,7 @@ repos:
 ```
 
 #### racktopia/.github Repository (Special Case)
+
 ```yaml
 ---
 repos:
@@ -119,17 +127,20 @@ git commit -m "Your commit message"
 ### Manual Execution
 
 **Run all hooks on all files:**
+
 ```bash
 pre-commit run --all-files
 ```
 
 **Run specific hook on all files:**
+
 ```bash
 pre-commit run markdownlint --all-files
 pre-commit run yamllint --all-files
 ```
 
 **Run hooks only on staged files:**
+
 ```bash
 pre-commit run
 ```
@@ -149,13 +160,16 @@ git commit --no-verify -m "Emergency fix"
 ### Updating Hooks
 
 **Check for updates:**
+
 ```bash
 pre-commit autoupdate
 ```
 
-**The racktopia-standards hook will fail if hooks are outdated**, ensuring you stay current with the latest shared tooling.
+**The racktopia-standards hook will fail if hooks are outdated**, ensuring you stay current with the latest
+shared tooling.
 
 **Review changes before updating:**
+
 ```bash
 # See commit summaries (commands provided by racktopia-standards hook)
 git log --oneline OLD_REV..NEW_REV --no-merges
@@ -224,19 +238,22 @@ Hooks automatically run only on relevant files:
 - `ansible-syntax-check` - Only files under `ansible/` directory  
 - `detect-secrets` - Only sensitive configuration files
 
-**If no matching files are staged, the hook is skipped.** This allows all repositories to use the same configuration while only running applicable checks.
+**If no matching files are staged, the hook is skipped.** This allows all repositories to use the same
+configuration while only running applicable checks.
 
 ## Troubleshooting
 
 ### Hook Not Running
 
 **Check file patterns:**
+
 ```bash
 # See what files match hook patterns
 pre-commit run --all-files --verbose
 ```
 
 **Force hook execution:**
+
 ```bash
 pre-commit run hook-name --all-files
 ```
@@ -244,6 +261,7 @@ pre-commit run hook-name --all-files
 ### Installation Issues
 
 **Reinstall pre-commit:**
+
 ```bash
 pip install --upgrade pre-commit
 # or
@@ -251,6 +269,7 @@ brew upgrade pre-commit
 ```
 
 **Clear and reinstall hooks:**
+
 ```bash
 pre-commit clean
 pre-commit install --install-hooks
@@ -259,6 +278,7 @@ pre-commit install --install-hooks
 ### Permission Issues
 
 **Make sure hook scripts are executable:**
+
 ```bash
 chmod +x .git/hooks/pre-commit
 ```
@@ -266,11 +286,13 @@ chmod +x .git/hooks/pre-commit
 ### Performance Issues
 
 **Skip hooks for large commits:**
+
 ```bash
 git commit --no-verify -m "Large refactor"
 ```
 
 **Run hooks only on changed files:**
+
 ```bash
 pre-commit run  # instead of --all-files
 ```
