@@ -42,14 +42,21 @@ pre-commit install
 pre-commit run --all-files
 ```
 
-### Hook Behavior
+### Hook Documentation
+
+For detailed information about all available hooks, configuration options, and troubleshooting, see:
+
+**📖 [Hooks Documentation](docs/hooks.md)**
+
+### Quick Reference
 
 Hooks automatically run only on relevant files:
 
-- `markdownlint` runs only on `.md` files
-- `yamllint` runs only on `.yml/.yaml` files  
-- `ansible-lint` runs only on files under `ansible/` directory
-- If no matching files are staged, the hook is skipped
+- `racktopia-standards` - Enforces configuration compliance (always runs)
+- `markdownlint` - Runs only on `.md` files
+- `yamllint` - Runs only on `.yml/.yaml` files  
+- `ansible-lint` + `ansible-syntax-check` - Run only on files under `ansible/` directory
+- `detect-secrets` - Runs on sensitive configuration files
 
 This allows all repositories to use the same configuration while only running applicable checks.
 
