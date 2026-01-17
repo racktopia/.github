@@ -15,9 +15,6 @@ updates:
     commit-message:
       prefix: "chore(deps)"
       prefix-development: "chore(dev-deps)"
-    labels:
-      - "dependencies"
-      - "github-actions"
 
   # Python dependencies (pip)
   # Note: This monitors requirements files and Python dependencies in workflows
@@ -28,9 +25,6 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
-    labels:
-      - "dependencies"
-      - "python"
 
   # NPM dependencies (for markdownlint-cli used in workflows)
   - package-ecosystem: "npm"
@@ -40,6 +34,3 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
-    labels:
-      - "dependencies"
-      - "npm"
