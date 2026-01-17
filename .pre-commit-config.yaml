@@ -1,5 +1,7 @@
+---
 repos:
   - repo: https://github.com/racktopia/.github
     rev: main
     hooks:
       - id: markdownlint
+      - id: yamllint

@@ -1,0 +1,18 @@
+#!/bin/bash
+# Pre-commit hook: markdownlint-with-check
+# Runs markdownlint with dependency checking
+
+set -e
+
+# Check if markdownlint is available
+if ! command -v markdownlint >/dev/null 2>&1; then
+    echo "❌ markdownlint not found but required for markdown linting"
+    echo ""
+    echo "To fix this, install markdownlint:"
+    echo "  macOS:  brew install markdownlint-cli"
+    echo "  Other:  npm install -g markdownlint-cli"
+    exit 1
+fi
+
+# Run markdownlint on the provided files
+exec markdownlint "$@"

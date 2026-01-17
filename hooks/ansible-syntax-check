@@ -4,6 +4,16 @@
 
 set -e
 
+# Check if ansible-playbook is available
+if ! command -v ansible-playbook >/dev/null 2>&1; then
+    echo "❌ ansible-playbook not found but required for Ansible syntax checking"
+    echo ""
+    echo "To fix this, install Ansible:"
+    echo "  macOS:  brew install ansible"
+    echo "  Other:  pip install ansible"
+    exit 1
+fi
+
 exit_code=0
 
 echo "🎭 Checking Ansible playbook syntax..."

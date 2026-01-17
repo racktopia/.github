@@ -1,0 +1,18 @@
+#!/bin/bash
+# Pre-commit hook: ansible-lint-with-check
+# Runs ansible-lint with dependency checking
+
+set -e
+
+# Check if ansible-lint is available
+if ! command -v ansible-lint >/dev/null 2>&1; then
+    echo "❌ ansible-lint not found but required for Ansible linting"
+    echo ""
+    echo "To fix this, install ansible-lint:"
+    echo "  macOS:  brew install ansible-lint"
+    echo "  Other:  pip install ansible-lint"
+    exit 1
+fi
+
+# Run ansible-lint on the provided files
+exec ansible-lint "$@"
