@@ -1,7 +1,8 @@
 ---
+# Pinned to specific commit SHA to avoid pre-commit warnings about mutable references
 repos:
   - repo: https://github.com/racktopia/.github
-    rev: main
+    rev: 81e86de8b011136abb709554ec47001c1f1d74e5
     hooks:
       - id: racktopia-standards
       - id: markdownlint

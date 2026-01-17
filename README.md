@@ -2,32 +2,6 @@
 
 This repository contains shared pre-commit hooks, setup scripts, and development tools used across all Racktopia projects.
 
-## Pre-commit Hooks
-
-### Available Hooks
-
-- **`markdownlint`** - Lint markdown files for consistency and best practices
-- **`yamllint`** - Validate YAML syntax and formatting  
-- **`ansible-lint`** - Check Ansible playbooks and roles for best practices
-- **`ansible-syntax-check`** - Validate Ansible playbook syntax
-- **`detect-secrets`** - Scan for accidentally committed secrets
-
-### Usage
-
-Add this to your repository's `.pre-commit-config.yaml`:
-
-```yaml
-repos:
-  - repo: https://github.com/racktopia/.github
-    rev: main
-    hooks:
-      - id: markdownlint
-      - id: yamllint  
-      - id: ansible-lint
-      - id: ansible-syntax-check
-      - id: detect-secrets
-```
-
 ## Documentation
 
 ### 📖 [Pre-commit Setup & Usage](docs/pre-commit.md)
@@ -38,16 +12,20 @@ Detailed reference for all available hooks, their purposes, dependencies, and tr
 
 ## Quick Start
 
+**1. Install pre-commit (one-time per machine)**
 ```bash
-# 1. Install pre-commit (one-time per machine)
-brew install pre-commit
-
-# 2. Install hooks (one-time per repo)
-pre-commit install
-
-# 3. Start coding!
-# Hooks run automatically and check dependencies as needed
+pip install pre-commit
+# or: brew install pre-commit
 ```
+See [docs/pre-commit.md](docs/pre-commit.md) for other installation methods.
+
+**2. Install hooks (one-time per repo)**
+```bash
+pre-commit install
+```
+
+**3. Start coding!**  
+Hooks run automatically and check dependencies as needed.
 
 ## Repository Contents
 
@@ -56,7 +34,7 @@ pre-commit install
 - **`hooks/`** - Custom hook scripts for complex validation
 - **`docs/`** - Comprehensive documentation for setup and usage
 
-## Contributing
+## Development Notes
 
 When adding new hooks or modifying existing ones:
 
