@@ -1,6 +1,6 @@
 # Racktopia Shared Development Tools
 
-This repository contains shared pre-commit hooks and development tools used across all Racktopia projects.
+This repository contains shared pre-commit hooks, setup scripts, and development tools used across all Racktopia projects.
 
 ## Pre-commit Hooks
 
@@ -78,3 +78,29 @@ To update hook versions:
 ```bash
 pre-commit autoupdate
 ```
+
+## Shared Setup Scripts
+
+### setup-base.sh
+
+A parameterized setup script that handles common development environment setup across different project types.
+
+**Usage in your repositories:**
+
+```bash
+# In your repo's scripts/setup.sh
+curl -sSL https://raw.githubusercontent.com/racktopia/.github/main/scripts/setup-base.sh | bash -s <project_type>
+```
+
+**Available project types:**
+- `ansible` - Installs Ansible, Galaxy requirements, sets up pre-commit
+- `python` - Installs Python dependencies, sets up pre-commit  
+- `node` - Installs npm dependencies, sets up pre-commit
+- `generic` - Basic setup with pre-commit only
+
+**Features:**
+- Python version checking
+- Pre-commit installation and hook setup
+- Project-specific dependency installation
+- Interactive pre-commit hook installation
+- Cross-platform support (Homebrew/MacPorts)
