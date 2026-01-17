@@ -46,20 +46,16 @@ install_precommit() {
 }
 
 setup_precommit_hooks() {
-    echo "📎 Setting up pre-commit hooks..."
-    read -p "Install pre-commit hooks for automatic validation? (y/n) " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        if command -v pre-commit >/dev/null 2>&1; then
-            if [ -f ".pre-commit-config.yaml" ]; then
-                pre-commit install
-                echo "✅ Pre-commit hooks installed successfully"
-            else
-                echo "❌ .pre-commit-config.yaml not found"
-            fi
+    echo "🪝 Installing pre-commit hooks..."
+    if command -v pre-commit >/dev/null 2>&1; then
+        if [ -f ".pre-commit-config.yaml" ]; then
+            pre-commit install
+            echo "✅ Pre-commit hooks installed"
         else
-            echo "❌ pre-commit not found. Install it first."
+            echo "❌ .pre-commit-config.yaml not found"
         fi
+    else
+        echo "❌ pre-commit not found but should have been installed earlier"
     fi
     echo ""
 }
