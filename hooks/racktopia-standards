@@ -133,11 +133,13 @@ if [[ -f "$CONFIG_FILE" ]]; then
         latest_commit=""
         current_display=""
         
-        if git remote get-url origin 2>/dev/null | grep -q "racktopia/\.github"; then
+        # Check remote URL with error handling
+        if git remote get-url origin 2>/dev/null | grep -q "racktopia/\.github" 2>/dev/null; then
             is_github_repo=true
         fi
         
-        current_rev=$(grep -A 1 "repo: https://github.com/racktopia/.github" "$CONFIG_FILE" | grep "rev:" | awk '{print $2}')
+        # Parse current revision with error handling
+        current_rev=$(grep -A 5 "repo: https://github.com/racktopia/.github" "$CONFIG_FILE" | grep "rev:" | awk '{print $2}' | head -1 2>/dev/null || echo "")
         
         if [[ -n "$current_rev" && "$current_rev" != "main" ]]; then
             # Get last 10 commit SHAs from main branch
