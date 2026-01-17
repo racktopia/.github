@@ -1,8 +1,9 @@
 ---
 repos:
   - repo: https://github.com/racktopia/.github
-    rev: ee0c9ce13d9c3c03a7c4bac5ef72bbc3b1ccd343
+    rev: 89410056b89ffad80a666b10e9f332de68667bd8
     hooks:
       - id: racktopia-standards
       - id: markdownlint
       - id: yamllint
+      - id: detect-secrets
