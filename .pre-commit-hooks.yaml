@@ -2,25 +2,25 @@
   name: Markdown lint
   description: Run markdownlint on markdown files
   entry: markdownlint
-  language: node
+  language: system
   files: \.md$
-  additional_dependencies: ['markdownlint-cli@0.39.0']
+  pass_filenames: true
 
 - id: yamllint
   name: YAML lint
   description: Run yamllint on YAML files
   entry: yamllint
-  language: python
+  language: system
   files: \.(yml|yaml)$
-  additional_dependencies: ['yamllint']
+  pass_filenames: true
 
 - id: ansible-lint
   name: Ansible lint
   description: Run ansible-lint on Ansible files
   entry: ansible-lint
-  language: python
+  language: system
   files: ^ansible/.*\.(yml|yaml)$
-  additional_dependencies: ['ansible-lint']
+  pass_filenames: true
   require_serial: true
 
 - id: ansible-syntax-check
