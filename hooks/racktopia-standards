@@ -125,6 +125,47 @@ fi
 if [[ -f "$CONFIG_FILE" ]]; then
     if grep -q "repo: https://github.com/racktopia/.github" "$CONFIG_FILE"; then
         echo -e "${GREEN}✅ Using racktopia/.github shared hooks${NC}"
+        
+        # Check if we're in the racktopia/.github repo itself
+        if git remote get-url origin 2>/dev/null | grep -q "racktopia/\.github"; then
+            # We're in the .github repo - should use 'main' not a specific rev
+            current_rev=$(grep -A 1 "repo: https://github.com/racktopia/.github" "$CONFIG_FILE" | grep "rev:" | awk '{print $2}')
+            if [[ "$current_rev" != "main" ]]; then
+                echo -e "${RED}❌ racktopia/.github repository should use 'rev: main' to avoid circular dependency${NC}"
+                echo "   Current rev: $current_rev"
+                echo "   Change to: rev: main"
+                EXIT_CODE=1
+            else
+                echo -e "${GREEN}✅ Using 'rev: main' for racktopia/.github repo (avoiding circular dependency)${NC}"
+            fi
+        else
+            # We're in a different repo - check if rev is up to date
+            current_rev=$(grep -A 1 "repo: https://github.com/racktopia/.github" "$CONFIG_FILE" | grep "rev:" | awk '{print $2}')
+            if [[ -n "$current_rev" && "$current_rev" != "main" ]]; then
+                # Get latest commit from racktopia/.github main branch
+                latest_commit=$(curl -s -f https://api.github.com/repos/racktopia/.github/commits/main 2>/dev/null | grep '"sha"' | head -1 | cut -d'"' -f4 | cut -c1-7 2>/dev/null)
+                current_short=$(echo "$current_rev" | cut -c1-7)
+                
+                if [[ -n "$latest_commit" && "$current_short" != "$latest_commit" ]]; then
+                    echo -e "${RED}❌ racktopia/.github hooks are outdated${NC}"
+                    echo "   Current rev: $current_rev ($current_short)"
+                    echo "   Latest commit: $latest_commit"
+                    echo
+                    echo "   Show changes:   git log --oneline ${current_short}..${latest_commit} --no-merges"
+                    echo "   Show code diff: git diff ${current_short}..${latest_commit}"
+                    echo
+                    echo "   Run: pre-commit autoupdate"
+                    echo "   Then review changes and commit the updated .pre-commit-config.yaml"
+                    EXIT_CODE=1
+                elif [[ -n "$latest_commit" && "$current_short" == "$latest_commit" ]]; then
+                    echo -e "${GREEN}✅ racktopia/.github hooks are up to date ($current_short)${NC}"
+                else
+                    echo -e "${YELLOW}ℹ️  Could not verify latest racktopia/.github version (network issue?)${NC}"
+                fi
+            else
+                echo -e "${YELLOW}ℹ️  Using branch reference instead of commit hash${NC}"
+            fi
+        fi
     else
         echo -e "${RED}❌ Not using racktopia/.github shared hooks${NC}"
         echo "   Update your .pre-commit-config.yaml to use 'repo: https://github.com/racktopia/.github'"
@@ -143,13 +184,18 @@ else
     echo "---"
     echo "repos:"
     echo "  - repo: https://github.com/racktopia/.github"
-    echo "    rev: main"
+    if git remote get-url origin 2>/dev/null | grep -q "racktopia/\.github"; then
+        echo "    rev: main              # Use 'main' for racktopia/.github repo itself"
+    else
+        echo "    rev: main              # Or use specific commit hash (updated via 'pre-commit autoupdate')"
+    fi
     echo "    hooks:"
-    echo "      - id: markdownlint      # if you have .md files"
-    echo "      - id: yamllint          # if you have .yml/.yaml files"
-    echo "      - id: ansible-lint      # if you have ansible/ directory"
+    echo "      - id: racktopia-standards   # Always include this first"
+    echo "      - id: markdownlint          # if you have .md files"
+    echo "      - id: yamllint              # if you have .yml/.yaml files"
+    echo "      - id: ansible-lint          # if you have ansible/ directory"
     echo "      - id: ansible-syntax-check  # if you have ansible/ directory"
-    echo "      - id: detect-secrets    # if you have sensitive config files"
+    echo "      - id: detect-secrets        # if you have sensitive config files"
 fi
 
 exit $EXIT_CODE
