@@ -1,6 +1,7 @@
 # racktopia
 
-**racktopia** is a personal infrastructure workspace for building, operating, and experimenting with automated systems at homelab scale.
+**racktopia** is a personal infrastructure workspace for building, operating, and experimenting with automated
+systems at homelab scale.
 
 The name is intentional, but not precious.
 
@@ -20,6 +21,7 @@ Each name describes the **final state the repository produces**, not the tools u
 The stack is intentionally layered:
 
 ### `substrate`
+
 Turns heterogeneous VPSes and VMs into fungible Debian hosts.
 
 When this layer is done, machines have no identity beyond capacity.
@@ -28,6 +30,7 @@ They are interchangeable matter ready to be organized.
 ---
 
 ### `abstract-machine`
+
 Organizes substrate into coherent Kubernetes clusters.
 
 This layer does not deploy workloads.
@@ -39,6 +42,7 @@ It is structure without intention.
 ---
 
 ### `teleoplexy`
+
 Deploys systems whose requirements compel the existence and shape of the layers below.
 
 This layer is driven by outcomes, not provisioning.

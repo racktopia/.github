@@ -45,6 +45,7 @@ pre-commit run --all-files
 ### Hook Behavior
 
 Hooks automatically run only on relevant files:
+
 - `markdownlint` runs only on `.md` files
 - `yamllint` runs only on `.yml/.yaml` files  
 - `ansible-lint` runs only on files under `ansible/` directory
