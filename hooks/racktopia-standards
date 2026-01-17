@@ -5,6 +5,13 @@ set -euo pipefail
 # Verifies that .pre-commit-config.yaml includes the appropriate hooks
 # based on the types of files present in the repository.
 
+# Configuration: Freshness limits for racktopia/.github hooks
+# Hooks pass if they are within EITHER limit (not both required)
+MAX_COMMITS_BEHIND=10    # Maximum commits behind latest before requiring update
+MAX_DAYS_OLD=7           # Maximum days old before requiring update
+WARNING_COMMIT_THRESHOLD=5   # Warn when more than this many commits behind (50% of MAX_COMMITS_BEHIND)
+WARNING_DAY_THRESHOLD=3      # Warn when older than this many days (roughly 50% of MAX_DAYS_OLD)
+
 CONFIG_FILE=".pre-commit-config.yaml"
 EXIT_CODE=0
 
@@ -142,18 +149,95 @@ if [[ -f "$CONFIG_FILE" ]]; then
         current_rev=$(grep -A 5 "repo: https://github.com/racktopia/.github" "$CONFIG_FILE" | grep "rev:" | awk '{print $2}' | head -1 2>/dev/null || echo "")
         
         if [[ -n "$current_rev" && "$current_rev" != "main" ]]; then
-            # Get last 10 commit SHAs from main branch
-            recent_commits=$(curl -s -f "https://api.github.com/repos/racktopia/.github/commits?per_page=10" 2>/dev/null | grep '"sha"' | head -10 | cut -d'"' -f4 2>/dev/null || echo "")
+            # Get last N commit SHAs and dates from main branch
+            recent_commits_data=$(curl -s -f "https://api.github.com/repos/racktopia/.github/commits?per_page=${MAX_COMMITS_BEHIND}" 2>/dev/null || echo "")
+            recent_commits=$(echo "$recent_commits_data" | grep '"sha"' | head -${MAX_COMMITS_BEHIND} | cut -d'"' -f4 2>/dev/null || echo "")
             current_short=$(echo "$current_rev" | cut -c1-40)  # Full SHA for comparison
             
             if [[ -n "$recent_commits" ]]; then
+                # Check if current revision is in last N commits
+                within_commit_limit=false
+                commit_position=0
                 if echo "$recent_commits" | grep -q "$current_short"; then
+                    within_commit_limit=true
+                    commit_position=$(echo "$recent_commits" | grep -n "$current_short" | cut -d: -f1 | head -1)
+                fi
+                
+                # Check if current revision is within configured day limit
+                within_time_limit=false
+                age_display=""
+                current_commit_date=$(echo "$recent_commits_data" | grep -A 10 "\"sha\": \"$current_short\"" | grep '"date"' | head -1 | cut -d'"' -f4 2>/dev/null || echo "")
+                if [[ -n "$current_commit_date" ]]; then
+                    # Convert dates to epoch seconds for comparison
+                    current_epoch=$(date -d "$current_commit_date" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%SZ" "$current_commit_date" +%s 2>/dev/null || echo "0")
+                    days_ago_epoch=$(date -d "${MAX_DAYS_OLD} days ago" +%s 2>/dev/null || date -j -v-${MAX_DAYS_OLD}d +%s 2>/dev/null || echo "0")
+                    now_epoch=$(date +%s)
+                    
+                    if [[ "$current_epoch" -gt "$days_ago_epoch" && "$current_epoch" -gt 0 ]]; then
+                        within_time_limit=true
+                        # Calculate age in days, hours, and minutes
+                        age_seconds=$((now_epoch - current_epoch))
+                        
+                        # Handle negative age (future commits due to timezone differences)
+                        if [[ "$age_seconds" -lt 0 ]]; then
+                            age_display="0:00 old"
+                            age_days=0
+                        else
+                            age_days=$((age_seconds / 86400))  # 86400 seconds in a day
+                            age_hours=$(((age_seconds % 86400) / 3600))  # 3600 seconds in an hour
+                            age_minutes=$(((age_seconds % 3600) / 60))   # 60 seconds in a minute
+                            
+                            # Format age display
+                            if [[ "$age_days" -gt 0 ]]; then
+                                printf -v age_display "%d days, %d:%02d old" "$age_days" "$age_hours" "$age_minutes"
+                            else
+                                printf -v age_display "%d:%02d old" "$age_hours" "$age_minutes"
+                            fi
+                        fi
+                    fi
+                fi
+                
+                # Pass if within either limit (commits OR time-based)
+                if [[ "$within_commit_limit" == "true" || "$within_time_limit" == "true" ]]; then
                     latest_commit=$(echo "$recent_commits" | head -1 | cut -c1-7)
                     current_display=$(echo "$current_short" | cut -c1-7)
+                    
+                    # Build status message with progress info
+                    status_parts=()
+                    if [[ "$within_commit_limit" == "true" ]]; then
+                        status_parts+=("${commit_position}/${MAX_COMMITS_BEHIND} commits behind")
+                    fi
+                    if [[ "$within_time_limit" == "true" ]]; then
+                        status_parts+=("$age_display")
+                    fi
+                    progress_info=$(IFS=', '; echo "${status_parts[*]}")
+                    
                     if [[ "$is_github_repo" == "true" ]]; then
-                        echo -e "${GREEN}✅ Current revision is within last 10 commits${NC}"
+                        if [[ "$within_commit_limit" == "true" ]]; then
+                            echo -e "${GREEN}✅ Current revision is within last ${MAX_COMMITS_BEHIND} commits ($progress_info)${NC}"
+                        else
+                            echo -e "${GREEN}✅ Current revision is within last ${MAX_DAYS_OLD} days ($progress_info)${NC}"
+                        fi
                     else
-                        echo -e "${GREEN}✅ racktopia/.github hooks are current ($current_display, latest: $latest_commit)${NC}"
+                        if [[ "$within_commit_limit" == "true" ]]; then
+                            echo -e "${GREEN}✅ racktopia/.github hooks are current ($current_display, $progress_info)${NC}"
+                        else
+                            echo -e "${GREEN}✅ racktopia/.github hooks are recent ($current_display, $progress_info)${NC}"
+                        fi
+                    fi
+                    
+                    # Check if we're more than halfway to limits and warn
+                    should_warn=false
+                    if [[ "$within_commit_limit" == "true" && "$commit_position" -gt "$WARNING_COMMIT_THRESHOLD" ]]; then
+                        should_warn=true
+                    fi
+                    if [[ "$within_time_limit" == "true" && "$age_days" -gt "$WARNING_DAY_THRESHOLD" ]]; then
+                        should_warn=true
+                    fi
+                    
+                    if [[ "$should_warn" == "true" ]]; then
+                        echo -e "${YELLOW}⚠️  WARNING: Approaching update limits!${NC}"
+                        echo -e "${YELLOW}   Consider running: pre-commit autoupdate${NC}"
                     fi
                 else
                     hooks_outdated=true
@@ -177,7 +261,7 @@ if [[ -f "$CONFIG_FILE" ]]; then
         
         # Handle outdated hooks with helpful commands
         if [[ "$hooks_outdated" == "true" ]]; then
-            echo -e "${RED}❌ racktopia/.github hooks are more than 10 commits behind${NC}"
+            echo -e "${RED}❌ racktopia/.github hooks are outdated (>${MAX_COMMITS_BEHIND} commits behind AND >${MAX_DAYS_OLD} days old)${NC}"
             echo "   Current rev: $current_display"
             echo "   Latest commit: $latest_commit"
             echo
