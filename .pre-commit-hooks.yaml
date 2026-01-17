@@ -2,7 +2,7 @@
 - id: markdownlint
   name: Markdown lint
   description: Run markdownlint on markdown files
-  entry: hooks/markdownlint-with-check
+  entry: hooks/markdownlint
   language: script
   files: \.md$
   pass_filenames: true
@@ -10,7 +10,7 @@
 - id: yamllint
   name: YAML lint
   description: Run yamllint on YAML files
-  entry: hooks/yamllint-with-check
+  entry: hooks/yamllint
   language: script
   files: \.(yml|yaml)$
   pass_filenames: true
@@ -18,7 +18,7 @@
 - id: ansible-lint
   name: Ansible lint
   description: Run ansible-lint on Ansible files
-  entry: hooks/ansible-lint-with-check
+  entry: hooks/ansible-lint
   language: script
   files: ^ansible/.*\.(yml|yaml)$
   pass_filenames: true
