@@ -28,67 +28,15 @@ repos:
       - id: detect-secrets
 ```
 
-### Installation
+## Documentation
 
-```bash
-# Install pre-commit (one-time per machine)
-pip install pre-commit
-# or: brew install pre-commit
+### 📖 [Pre-commit Setup & Usage](docs/pre-commit.md)
+Complete guide to installing, configuring, and using pre-commit hooks with racktopia shared tooling.
 
-# Install hooks (one-time per repo)  
-pre-commit install
+### 📖 [Hooks Documentation](docs/hooks.md)
+Detailed reference for all available hooks, their purposes, dependencies, and troubleshooting.
 
-# Run manually
-pre-commit run --all-files
-```
-
-### Hook Documentation
-
-For detailed information about all available hooks, configuration options, and troubleshooting, see:
-
-**📖 [Hooks Documentation](docs/hooks.md)**
-
-### Quick Reference
-
-Hooks automatically run only on relevant files:
-
-- `racktopia-standards` - Enforces configuration compliance (always runs)
-- `markdownlint` - Runs only on `.md` files
-- `yamllint` - Runs only on `.yml/.yaml` files  
-- `ansible-lint` + `ansible-syntax-check` - Run only on files under `ansible/` directory
-- `detect-secrets` - Runs on sensitive configuration files
-
-This allows all repositories to use the same configuration while only running applicable checks.
-
-## Configuration Files
-
-- **`.markdownlint.json`** - Shared markdown linting rules
-- **`.pre-commit-hooks.yaml`** - Hook definitions for other repositories to consume
-- **`hooks/`** - Custom hook scripts for complex validation
-
-## Local Development
-
-After installing pre-commit hooks, they run automatically on `git commit`. To bypass:
-
-```bash
-git commit --no-verify
-```
-
-To run specific hooks:
-
-```bash
-pre-commit run markdownlint --all-files
-```
-
-To update hook versions:
-
-```bash
-pre-commit autoupdate
-```
-
-## Getting Started
-
-New to a racktopia repository? Here's all you need:
+## Quick Start
 
 ```bash
 # 1. Install pre-commit (one-time per machine)
@@ -98,8 +46,22 @@ brew install pre-commit
 pre-commit install
 
 # 3. Start coding!
-# Pre-commit hooks check dependencies as needed and provide helpful install instructions
+# Hooks run automatically and check dependencies as needed
 ```
 
-The hooks will automatically check for required tools when you edit relevant files and give
-you clear install instructions if anything is missing.
+## Repository Contents
+
+- **`.markdownlint.json`** - Shared markdown linting rules
+- **`.pre-commit-hooks.yaml`** - Hook definitions for other repositories to consume
+- **`hooks/`** - Custom hook scripts for complex validation
+- **`docs/`** - Comprehensive documentation for setup and usage
+
+## Contributing
+
+When adding new hooks or modifying existing ones:
+
+1. Update hook scripts in `hooks/` directory
+2. Update hook definitions in `.pre-commit-hooks.yaml`
+3. Update documentation in `docs/hooks.md`
+4. Test thoroughly across different repository types
+5. Follow the alphabetical ordering convention (except racktopia-standards first)
