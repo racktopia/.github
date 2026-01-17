@@ -93,12 +93,14 @@ curl -sSL https://raw.githubusercontent.com/racktopia/.github/main/scripts/setup
 ```
 
 **Available project types:**
+
 - `ansible` - Installs Ansible, Galaxy requirements, sets up pre-commit
 - `python` - Installs Python dependencies, sets up pre-commit  
 - `node` - Installs npm dependencies, sets up pre-commit
 - `generic` - Basic setup with pre-commit only
 
 **Features:**
+
 - Python version checking
 - Pre-commit installation and hook setup
 - Project-specific dependency installation
