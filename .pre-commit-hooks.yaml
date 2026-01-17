@@ -39,3 +39,11 @@
   language: script
   files: ^ansible/.*\.(yml|yaml)$
   exclude: vault/
+
+- id: racktopia-standards
+  name: Racktopia Standards
+  description: Verify pre-commit config matches project file types
+  entry: hooks/racktopia-standards
+  language: script
+  always_run: true
+  pass_filenames: false

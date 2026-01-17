@@ -1,7 +1,8 @@
 ---
 repos:
   - repo: https://github.com/racktopia/.github
-    rev: main
+    rev: ee0c9ce13d9c3c03a7c4bac5ef72bbc3b1ccd343
     hooks:
+      - id: racktopia-standards
       - id: markdownlint
       - id: yamllint

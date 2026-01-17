@@ -1,0 +1,155 @@
+#!/bin/bash
+set -euo pipefail
+
+# Racktopia Standards Hook
+# Verifies that .pre-commit-config.yaml includes the appropriate hooks
+# based on the types of files present in the repository.
+
+CONFIG_FILE=".pre-commit-config.yaml"
+EXIT_CODE=0
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+NC='\033[0m' # No Color
+
+echo "🔍 Checking racktopia standards compliance..."
+
+# Check if .pre-commit-config.yaml exists
+if [[ ! -f "$CONFIG_FILE" ]]; then
+    echo -e "${RED}❌ Missing .pre-commit-config.yaml file${NC}"
+    echo "   Please create a .pre-commit-config.yaml file with racktopia/.github hooks"
+    EXIT_CODE=1
+fi
+
+# Function to check if a hook is enabled in pre-commit config
+check_hook_enabled() {
+    local hook_name="$1"
+    if [[ -f "$CONFIG_FILE" ]] && grep -q "id: $hook_name" "$CONFIG_FILE"; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to check for files matching patterns
+has_files() {
+    local pattern="$1"
+    # Use find to check for files matching the pattern
+    if find . -name "$pattern" -type f -print -quit | grep -q .; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Function to check for files in specific directories
+has_files_in_dir() {
+    local dir="$1"
+    local pattern="$2"
+    if [[ -d "$dir" ]] && find "$dir" -name "$pattern" -type f -print -quit | grep -q .; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+# Check for markdown files
+if has_files "*.md"; then
+    if check_hook_enabled "markdownlint"; then
+        echo -e "${GREEN}✅ Markdown files found - markdownlint hook is enabled${NC}"
+    else
+        echo -e "${RED}❌ Markdown files found but markdownlint hook is missing${NC}"
+        echo "   Add 'id: markdownlint' to your .pre-commit-config.yaml"
+        EXIT_CODE=1
+    fi
+else
+    echo -e "${YELLOW}ℹ️  No markdown files found${NC}"
+fi
+
+# Check for YAML files
+if has_files "*.yml" || has_files "*.yaml"; then
+    if check_hook_enabled "yamllint"; then
+        echo -e "${GREEN}✅ YAML files found - yamllint hook is enabled${NC}"
+    else
+        echo -e "${RED}❌ YAML files found but yamllint hook is missing${NC}"
+        echo "   Add 'id: yamllint' to your .pre-commit-config.yaml"
+        EXIT_CODE=1
+    fi
+else
+    echo -e "${YELLOW}ℹ️  No YAML files found${NC}"
+fi
+
+# Check for Ansible files
+if has_files_in_dir "ansible" "*.yml" || has_files_in_dir "ansible" "*.yaml" || \
+   has_files "playbook*.yml" || has_files "playbook*.yaml" || \
+   has_files "site.yml" || has_files "site.yaml" || \
+   has_files "*playbook*.yml" || has_files "*playbook*.yaml"; then
+    
+    if check_hook_enabled "ansible-lint"; then
+        echo -e "${GREEN}✅ Ansible files found - ansible-lint hook is enabled${NC}"
+    else
+        echo -e "${RED}❌ Ansible files found but ansible-lint hook is missing${NC}"
+        echo "   Add 'id: ansible-lint' to your .pre-commit-config.yaml"
+        EXIT_CODE=1
+    fi
+    
+    if check_hook_enabled "ansible-syntax-check"; then
+        echo -e "${GREEN}✅ Ansible files found - ansible-syntax-check hook is enabled${NC}"
+    else
+        echo -e "${RED}❌ Ansible files found but ansible-syntax-check hook is missing${NC}"
+        echo "   Add 'id: ansible-syntax-check' to your .pre-commit-config.yaml"
+        EXIT_CODE=1
+    fi
+else
+    echo -e "${YELLOW}ℹ️  No Ansible files found${NC}"
+fi
+
+# Check for sensitive files that should have secrets detection
+if has_files_in_dir "ansible" "*.yml" || has_files_in_dir "ansible" "*.yaml" || \
+   has_files "*.env*" || has_files "*.secret*" || has_files_in_dir ".github" "*.yml"; then
+    
+    if check_hook_enabled "detect-secrets"; then
+        echo -e "${GREEN}✅ Sensitive files found - detect-secrets hook is enabled${NC}"
+    else
+        echo -e "${RED}❌ Sensitive files found but detect-secrets hook is missing${NC}"
+        echo "   Add 'id: detect-secrets' to your .pre-commit-config.yaml"
+        EXIT_CODE=1
+    fi
+else
+    echo -e "${YELLOW}ℹ️  No sensitive files requiring secrets detection found${NC}"
+fi
+
+# Check that the racktopia/.github repo is being used
+if [[ -f "$CONFIG_FILE" ]]; then
+    if grep -q "repo: https://github.com/racktopia/.github" "$CONFIG_FILE"; then
+        echo -e "${GREEN}✅ Using racktopia/.github shared hooks${NC}"
+    else
+        echo -e "${RED}❌ Not using racktopia/.github shared hooks${NC}"
+        echo "   Update your .pre-commit-config.yaml to use 'repo: https://github.com/racktopia/.github'"
+        EXIT_CODE=1
+    fi
+fi
+
+# Summary
+echo ""
+if [[ $EXIT_CODE -eq 0 ]]; then
+    echo -e "${GREEN}🎉 All racktopia standards checks passed!${NC}"
+else
+    echo -e "${RED}❌ Some racktopia standards checks failed${NC}"
+    echo ""
+    echo "Example .pre-commit-config.yaml:"
+    echo "---"
+    echo "repos:"
+    echo "  - repo: https://github.com/racktopia/.github"
+    echo "    rev: main"
+    echo "    hooks:"
+    echo "      - id: markdownlint      # if you have .md files"
+    echo "      - id: yamllint          # if you have .yml/.yaml files"
+    echo "      - id: ansible-lint      # if you have ansible/ directory"
+    echo "      - id: ansible-syntax-check  # if you have ansible/ directory"
+    echo "      - id: detect-secrets    # if you have sensitive config files"
+fi
+
+exit $EXIT_CODE
