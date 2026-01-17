@@ -16,12 +16,32 @@ This document describes all the shared pre-commit hooks available in the racktop
   - `yamllint` for repositories with `.yml/.yaml` files
   - `ansible-lint` + `ansible-syntax-check` for Ansible projects
   - `detect-secrets` for projects with sensitive configuration files
-- Validates that hook revisions are up-to-date with the latest version
+- Validates that hook revisions are up-to-date using configurable freshness limits
+
+**Freshness checking:**
+
+- Uses dual criteria: hooks pass if within **EITHER** commit limit OR time limit (not both required)
+- Default limits: 10 commits behind OR 7 days old
+- Shows detailed progress: `✅ racktopia/.github hooks are current (51798d7, 1/10 commits behind, 0:00 old)`
+- Early warnings when approaching limits (>5 commits behind OR >3 days old)
+- All limits are user-configurable via variables at the top of the hook file
+
+**Configuration variables (in hook file):**
+
+```bash
+MAX_COMMITS_BEHIND=10     # Maximum commits behind before requiring update
+MAX_DAYS_OLD=7            # Maximum days old before requiring update  
+WARNING_COMMIT_THRESHOLD=5 # Early warning threshold (commits)
+WARNING_DAY_THRESHOLD=3    # Early warning threshold (days)
+```
 
 **Special handling:**
 
 - For `racktopia/.github` repository itself: Must use `rev: main` to avoid circular dependency
-- For other repositories: Fails if hooks are outdated, provides commands to review changes
+- For other repositories: Uses GitHub API to check commit freshness with detailed progress indicators
+- Fails only if hooks are both >N commits behind AND >N days old (dual criteria)
+- Provides helpful commands to review changes and update when outdated
+- Shows warnings when approaching configured limits
 
 **When it runs:** Always (not file-specific)
 
@@ -198,8 +218,12 @@ git log --oneline OLD_REV..NEW_REV --no-merges
 git diff OLD_REV..NEW_REV
 ```
 
-**The racktopia-standards hook will fail if hooks are outdated**, ensuring all repositories stay current with
-the latest shared tooling.
+**The racktopia-standards hook will fail if hooks are both outdated (beyond configured limits)** and provide detailed
+progress information, ensuring all repositories stay current with the latest shared tooling. The hook shows:
+
+- Current position: `3/10 commits behind, 2 days, 14:32 old`
+- Early warnings: `⚠️ WARNING: Approaching update limits!`
+- Helpful update commands when limits are exceeded
 
 ### Adding New Hooks
 
@@ -240,6 +264,14 @@ the latest shared tooling.
 
 ### Network Issues
 
-- racktopia-standards hook requires internet access to check for updates
-- If offline, hook may show warnings but won't fail
-- Updates will be checked on next run with internet access
+- racktopia-standards hook requires internet access to check commit freshness via GitHub API
+- If offline, hook shows `ℹ️ Could not verify commit recency (network issue?)` and continues
+- Freshness checking will resume on next run with internet access
+- Hook never fails due to network issues, only due to confirmed outdated revisions
+
+### racktopia-standards Configuration
+
+- Hook limits are configurable by editing variables at the top of the hook file
+- Modify `MAX_COMMITS_BEHIND` and `MAX_DAYS_OLD` to adjust freshness requirements
+- Adjust `WARNING_COMMIT_THRESHOLD` and `WARNING_DAY_THRESHOLD` for early warnings
+- Changes take effect immediately when hook file is updated
