@@ -1,0 +1,40 @@
+- id: markdownlint
+  name: Markdown lint
+  description: Run markdownlint on markdown files
+  entry: markdownlint
+  language: node
+  files: \.md$
+  additional_dependencies: ['markdownlint-cli@0.39.0']
+
+- id: yamllint
+  name: YAML lint
+  description: Run yamllint on YAML files
+  entry: yamllint
+  language: python
+  files: \.(yml|yaml)$
+  additional_dependencies: ['yamllint']
+
+- id: ansible-lint
+  name: Ansible lint
+  description: Run ansible-lint on Ansible files
+  entry: ansible-lint
+  language: python
+  files: ^ansible/.*\.(yml|yaml)$
+  additional_dependencies: ['ansible-lint']
+  require_serial: true
+
+- id: ansible-syntax-check
+  name: Ansible syntax check
+  description: Check Ansible playbook syntax
+  entry: hooks/ansible-syntax-check
+  language: script
+  files: ^ansible/playbooks/.*\.(yml|yaml)$
+  require_serial: true
+
+- id: detect-secrets
+  name: Detect secrets
+  description: Check for accidentally committed secrets
+  entry: hooks/detect-secrets
+  language: script
+  files: ^ansible/.*\.(yml|yaml)$
+  exclude: vault/

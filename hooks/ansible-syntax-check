@@ -1,0 +1,30 @@
+#!/bin/bash
+# Pre-commit hook: ansible-syntax-check
+# Validates Ansible playbook syntax
+
+set -e
+
+exit_code=0
+
+echo "🎭 Checking Ansible playbook syntax..."
+
+for playbook in "$@"; do
+    if [ -f "$playbook" ]; then
+        echo "  Checking: $playbook"
+        if ansible-playbook --syntax-check "$playbook" >/dev/null 2>&1; then
+            echo "  ✅ $playbook syntax valid"
+        else
+            echo "  ❌ $playbook syntax invalid"
+            ansible-playbook --syntax-check "$playbook"
+            exit_code=1
+        fi
+    fi
+done
+
+if [ $exit_code -eq 0 ]; then
+    echo "✅ All playbook syntax checks passed"
+else
+    echo "❌ Playbook syntax check failed"
+fi
+
+exit $exit_code
