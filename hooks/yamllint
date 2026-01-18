@@ -15,4 +15,10 @@ if ! command -v yamllint >/dev/null 2>&1; then
 fi
 
 # Run yamllint on the provided files
-exec yamllint "$@"
+if ! yamllint "$@"; then
+    echo ""
+    echo "💡 Tip: Many yamllint issues can be automatically fixed by running prettier:"
+    echo "  See differences: prettier [filename] | diff [filename] -"
+    echo "  Apply changes:   prettier --write [filename]"
+    exit 1
+fi

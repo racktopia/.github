@@ -15,4 +15,10 @@ if ! command -v markdownlint >/dev/null 2>&1; then
 fi
 
 # Run markdownlint on the provided files
-exec markdownlint "$@"
+if ! markdownlint "$@"; then
+    echo ""
+    echo "💡 Tip: Many markdownlint issues can be automatically fixed by running prettier:"
+    echo "  See differences: prettier [filename] | diff [filename] -"
+    echo "  Apply changes:   prettier --write [filename]"
+    exit 1
+fi
