@@ -3,7 +3,7 @@
 repos:
   - repo: https://github.com/racktopia/.github
     # Pin to current HEAD to avoid warnings, allow up to 10 commits behind
-    rev: 176c6601908da7ab5c1006fc797c7f9f8360feda
+    rev: 14bbee320cc6fc35074742d98a8755256496c0e6
     hooks:
       - id: racktopia-standards
       - id: markdownlint
